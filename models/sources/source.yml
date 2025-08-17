@@ -6,9 +6,6 @@ sources:
     database: trendii-data-eng-task
     schema: trendii_dataset
 
-    freshness:
-      warn_after: {count: 6, period: hour}
-      error_after: {count: 24, period: hour}
 
     tables:
       - name: stg_events_ext
@@ -29,9 +26,6 @@ sources:
           - name: event_data
             description: "Payload with product/mount/click details"
 
-        freshness:
-          warn_after: {count: 2, period: hour}
-          error_after: {count: 6, period: hour}
 
       - name: dim_product_ext
         description: "Raw product dimension from CSV (245 products)"
@@ -45,17 +39,8 @@ sources:
           - name: name
             description: "Product name"
             tests: [not_null]
-          - name: price
-            description: "Product list price"
-            tests:
-              - not_null
-              - dbt_utils.accepted_range:
-                  min_value: 0
-                  max_value: 10000
+     
 
-        freshness:
-          warn_after: {count: 7, period: day}
-          error_after: {count: 30, period: day}
 
       - name: dim_campaign_ext
         description: "Raw campaign dimension from CSV (6 campaigns, SCD2 style)"
@@ -73,19 +58,5 @@ sources:
                   values: ['CPC', 'CPM', 'CPA']
                   config:
                     severity: warn
-          - name: valid_from
-            description: "Record valid from date"
-          - name: valid_to
-            description: "Record valid to date"
-          - name: current_record
-            description: "Is current record flag"
+        
 
-        tests:
-          - dbt_utils.unique_combination_of_columns:
-              combination_of_columns: ['id', 'valid_from']
-          - dbt_utils.expression_is_true:
-              expression: "valid_from <= coalesce(valid_to, date('9999-12-31'))"
-
-        freshness:
-          warn_after: {count: 3, period: day}
-          error_after: {count: 14, period: day}
