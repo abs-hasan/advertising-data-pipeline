@@ -1,0 +1,78 @@
+version: 2
+
+models:
+  - name: stg_events
+    description: "Staged events with normalized domains and standardized IDs"
+    columns:
+      - name: event_id
+        tests: [not_null, unique]
+      - name: event_created_at
+        tests: [not_null]
+      - name: event_date
+        tests: [not_null]
+      - name: event_name
+        tests:
+          - not_null
+          - accepted_values:
+              values:  ['Mounts', 'ProductImpressions', 'ProductClick', 'TagLoaded']
+      - name: device_id
+        tests: [not_null]
+      - name: domain
+        tests: [not_null]
+      - name: publisher_id
+        tests: [not_null]
+      - name: page_view_id
+        tests: [not_null]
+
+  - name: stg_campaigns
+    description: "Staged campaigns with inferred product types"
+    columns:
+      - name: campaign_id
+        tests: [not_null]
+      - name: brand_id
+        tests: [not_null]
+      - name: campaign_name
+        tests: [not_null]
+      - name: product_type
+        tests:
+          - accepted_values:
+              values: ['CPC', 'CPM', 'CPA', 'INVALID']
+              config:
+                severity: warn
+      - name: cmp_rate
+      - name: company_name
+        tests: [not_null]
+      - name: company_domain
+        tests: [not_null]
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns: ['campaign_id', 'valid_from']
+      - dbt_utils.expression_is_true:
+          expression: "(product_type != 'CPM') OR (cmp_rate IS NULL OR cmp_rate > 0)"
+          config:
+            severity: warn
+
+  - name: stg_products
+    description: "Staged products with sale flags"
+    columns:
+      - name: product_id
+        tests: [not_null, unique]
+      - name: brand_id
+        tests: [not_null]
+      - name: product_name
+        tests: [not_null]
+      - name: price
+        tests: [not_null]
+      - name: on_sale
+        tests:
+          - not_null
+          - accepted_values:
+              values: [true, false]
+              quote: false
+      - name: discount_percentage
+        tests: [not_null]
+
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "(sale_price IS NULL) OR (sale_price <= price)"

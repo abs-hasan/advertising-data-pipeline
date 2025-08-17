@@ -1,0 +1,28 @@
+cat > .gitignore << 'EOF'
+# venvs / caches
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# dbt build artifacts
+target/
+logs/
+dbt_packages/
+dbt_modules/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Data (don’t commit raw files)
+data/
+raw/
+**/*.parquet
+
+# Credentials (don’t commit SA keys)
+**/*credentials*.json
+**/*key*.json
+.env
+EOF

@@ -1,0 +1,123 @@
+version: 2
+
+models:
+  - name: int_articles
+    description: "Article info pulled from page URLs"
+    columns:
+      - name: url
+        tests: [not_null, unique]
+      - name: domain
+        tests: [not_null]
+      - name: section
+        tests: [not_null]
+      - name: sub_section
+        tests: [not_null]
+      - name: article_title
+      - name: first_seen
+        tests: [not_null]
+      - name: last_seen
+        tests: [not_null]
+
+  - name: int_devices
+    description: "Device details from browser info"
+    columns:
+      - name: device_id
+        tests: [not_null]
+      - name: user_agent
+        tests: [not_null]
+      - name: device_type
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Mobile', 'Tablet', 'Desktop']
+      - name: os_type
+        tests: [not_null]
+      - name: browser_name
+        tests: [not_null]
+      - name: first_seen
+        tests: [not_null]
+      - name: last_seen
+        tests: [not_null]
+
+  - name: int_impressions
+    description: "One row per product shown to users"
+    columns:
+      - name: event_id
+        tests: [not_null]
+      - name: publisher_id
+        tests: [not_null]
+      - name: device_id
+        tests: [not_null]
+      - name: url
+        tests: [not_null]
+      - name: page_view_id
+        tests: [not_null]
+      - name: product_id
+        tests: [not_null]
+      - name: brand_id
+        tests: [not_null]
+      - name: impression_timestamp
+        tests: [not_null]
+      - name: impression_date
+        tests: [not_null]
+
+  - name: int_mounts
+    description: "One row per ad placed on images"
+    columns:
+      - name: event_id
+        tests: [not_null]
+      - name: publisher_id
+        tests: [not_null]
+      - name: device_id
+        tests: [not_null]
+      - name: page_view_id
+        tests: [not_null]
+      - name: domain
+        tests: [not_null]
+      - name: url
+        tests: [not_null]
+      - name: image_id
+        tests: [not_null]
+      - name: mount_index
+        tests: [not_null]
+      - name: mount_timestamp
+        tests: [not_null]
+      - name: mount_date
+        tests: [not_null]
+
+  - name: int_product_clicks
+    description: "Clean list of product clicks"
+    columns:
+      - name: event_id
+        tests: [not_null]
+      - name: publisher_id
+        tests: [not_null]
+      - name: device_id
+        tests: [not_null]
+      - name: page_view_id
+        tests: [not_null]
+      - name: click_id
+        tests: [not_null, unique]
+      - name: product_id
+        tests: [not_null]
+      - name: brand_id
+        tests: [not_null]
+      - name: url
+        tests: [not_null]
+      - name: click_timestamp
+        tests: [not_null]
+      - name: click_date
+        tests: [not_null]
+
+  - name: int_publishers
+    description: "Publisher details with clean names"
+    columns:
+      - name: publisher_id
+        tests: [not_null, unique]
+      - name: publisher_domain
+        tests: [not_null]
+      - name: publisher_name
+      - name: first_seen
+        tests: [not_null]
+      - name: last_seen
+        tests: [not_null]

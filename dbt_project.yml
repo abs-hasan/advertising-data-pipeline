@@ -1,0 +1,41 @@
+name: 'trendii_pipeline'
+version: '1.0.0'
+config-version: 2
+profile: 'trendii_pipeline'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+target-path: "target"
+
+clean-targets:       
+  - "target"
+  - "dbt_packages"
+
+models:
+  trendii_pipeline:
+    +materialized: view
+    staging:
+      +materialized: view
+      +tags: ["staging"]
+    intermediate:
+      +materialized: view  
+      +tags: ["intermediate"]
+    marts:
+      +materialized: table  
+      +tags: ["marts"]
+      core:
+        +materialized: table  
+      analytics:
+        +materialized: view   # Analysis queries (q1, q2, q3, q4, q5)
+        +tags: ["analytics"]
+
+# Basic test configuration
+tests:
+  +store_failures: true
+
+seeds:
+  trendii_pipeline:
+    company_standardization:
+      +column_types:
+        company_domain: string
+        standard_company_name: string

@@ -1,0 +1,149 @@
+version: 2
+
+models:
+  - name: dim_articles
+    description: "Article info from URLs"
+    columns:
+      - name: article_key
+        tests: [not_null, unique]
+      - name: url
+        tests: [not_null, unique]
+      - name: domain
+        tests: [not_null]
+      - name: publisher_id
+        tests:
+          - relationships:
+              to: ref('dim_publishers')
+              field: publisher_id
+
+  - name: dim_campaigns
+    description: "Campaign details with pricing"
+    columns:
+      - name: campaign_id
+        tests: [not_null]
+      - name: brand_id
+        tests: [not_null]
+      - name: product_type
+        tests:
+          - accepted_values:
+              values: ['CPC', 'CPM', 'CPA', 'INVALID']
+
+  - name: dim_dates
+    description: "Date lookup table"
+    columns:
+      - name: date_key
+        tests: [not_null, unique]
+      - name: date_actual
+        tests: [not_null, unique]
+
+  - name: dim_devices
+    description: "Device and browser info"
+    columns:
+      - name: device_id
+        tests: [not_null, unique]
+      - name: device_type
+        tests:
+          - accepted_values:
+              values: ['Mobile', 'Tablet', 'Desktop']
+
+  - name: dim_products
+    description: "Product catalog with pricing"
+    columns:
+      - name: product_id
+        tests: [not_null, unique]
+      - name: brand_id
+        tests: [not_null]
+      - name: price
+        tests: [not_null]
+
+  - name: dim_publishers
+    description: "Publisher details"
+    columns:
+      - name: publisher_id
+        tests: [not_null, unique]
+      - name: publisher_domain
+        tests: [not_null]
+
+  - name: fact_clicks
+    description: "Product clicks"
+    columns:
+      - name: product_click_key
+        tests: [not_null, unique]
+      - name: article_key
+        tests:
+          - relationships:
+              to: ref('dim_articles')
+              field: article_key
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_products')
+              field: product_id
+      - name: publisher_id
+        tests:
+          - relationships:
+              to: ref('dim_publishers')
+              field: publisher_id
+      - name: click_date
+        tests: [not_null]
+
+  - name: fact_impressions
+    description: "Product impressions"
+    columns:
+      - name: impression_key
+        tests: [not_null, unique]
+      - name: article_key
+        tests:
+          - relationships:
+              to: ref('dim_articles')
+              field: article_key
+      - name: product_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_products')
+              field: product_id
+      - name: publisher_id
+        tests:
+          - relationships:
+              to: ref('dim_publishers')
+              field: publisher_id
+      - name: impression_date
+        tests: [not_null]
+
+  - name: fact_mounts
+    description: "Ad placements on images"
+    columns:
+      - name: mount_key
+        tests: [not_null, unique]
+      - name: article_key
+        tests:
+          - relationships:
+              to: ref('dim_articles')
+              field: article_key
+      - name: publisher_id
+        tests:
+          - relationships:
+              to: ref('dim_publishers')
+              field: publisher_id
+      - name: mount_date
+        tests: [not_null]
+
+  - name: fact_tagloads
+    description: "Page load events"
+    columns:
+      - name: event_id
+        tests: [not_null, unique]
+      - name: article_key
+        tests:
+          - relationships:
+              to: ref('dim_articles')
+              field: article_key
+      - name: publisher_id
+        tests:
+          - relationships:
+              to: ref('dim_publishers')
+              field: publisher_id
+      - name: event_date
+        tests: [not_null]
