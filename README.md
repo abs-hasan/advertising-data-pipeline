@@ -1,4 +1,4 @@
-# TRENDii Data Pipeline - Setup & Execution Guide
+# Data Pipeline - Setup & Execution Guide
 
 
 ## Architecture
