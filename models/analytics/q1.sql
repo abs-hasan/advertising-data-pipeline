@@ -1,28 +1,23 @@
-{{ config(materialized='view') }}
+{{ config(materialized="view") }}
 
--- TRENDii Analysis Question 1:
--- What were the top five articles by traffic per domain?
+-- Top 5 articles by traffic per domain
+select
+    art.domain,
+    art.article_title,
+    count(distinct tag.page_view_id) as traffic_count
+from {{ ref("fact_tagloads") }} tag
 
-WITH ranked_articles AS (
-    SELECT 
-        art.domain,
-        art.article_title,
-        COUNT(DISTINCT tag.page_view_id) as traffic_count,
-        ROW_NUMBER() OVER (
-            PARTITION BY art.domain 
-            ORDER BY COUNT(DISTINCT tag.page_view_id) DESC
-        ) as rank
-    FROM {{ ref('fact_tagloads') }} as tag
-    LEFT JOIN {{ ref('dim_articles') }} as art 
-        ON tag.article_key = art.article_key
-    WHERE art.domain IS NOT NULL
-    GROUP BY art.domain, art.article_title
-)
+left join
+    {{ ref("dim_articles") }} art
+    on tag.article_key = art.article_key
 
-SELECT 
-    domain,
-    article_title,
-    traffic_count
-FROM ranked_articles
-WHERE rank <= 5
-ORDER BY domain, traffic_count DESC
+where art.domain is not null
+group by art.domain, art.article_title
+
+qualify
+    row_number() over (
+        partition by art.domain
+        order by count(distinct tag.page_view_id) desc
+    )
+    <= 5
+order by art.domain, traffic_count desc
