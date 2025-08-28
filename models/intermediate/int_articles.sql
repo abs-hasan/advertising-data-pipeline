@@ -5,29 +5,18 @@
 
 
 with
-    source as (
+    path_stage as (
         -- One row per (url, domain) with first/last seen
         select url,
         domain,
         min(event_created_at) as first_seen,
         max(event_created_at) as last_seen,
-        lower(url) as url_lc
+        lower(url) as url_lc,
+        -- Extract the path part after the domain from URLs
+        regexp_extract(lower(url), r'^[^/]+(/.*)$') as path_only
         from {{ ref("stg_events") }}
         where url is not null
         group by 1, 2
-    ),
-
-    path_stage as (
-        -- Pull just the path (everything after the domain)
-        select url,
-        domain, 
-        url_lc,
-        first_seen,
-        last_seen,
-
-        -- Extract the path part after the domain from URLs
-        regexp_extract(url_lc, r'^[^/]+(/.*)$') as path_only
-        from source
     ),
 
     parts_clean as (
